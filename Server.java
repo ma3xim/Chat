@@ -42,6 +42,10 @@ public class Server {
                 return userName;
             }
         }
+
+        private void notifyUsers(Connection connection, String userName) throws IOException{
+
+        }
     }
 
     public static void sendBroadcastMessage(Message message){
