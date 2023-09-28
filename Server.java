@@ -67,7 +67,7 @@ public class Server {
         public void run(){
             ConsoleHelper.writeMessage("Соединение установлено c " + socket.getRemoteSocketAddress());
             String userName = null;
-            try( Connection connection = new Connection(socket)) {
+            try( Connection connection = new Connection(socket);) {
                 userName = serverHandshake(connection);
                 sendBroadcastMessage(new Message(MessageType.USER_ADDED, userName));
                 notifyUsers(connection, userName);
