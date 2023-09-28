@@ -50,6 +50,37 @@ public class Server {
                 }
             }
         }
+
+        private void serverMainLoop(Connection connection, String userName) throws IOException, ClassNotFoundException{
+            while (true){
+                Message message = connection.receive();
+                if (message.getType() == MessageType.TEXT){
+                    Message newMessage = new Message(MessageType.TEXT, userName + ": " + message.getData());
+                    sendBroadcastMessage(newMessage);
+                }
+                else {
+                    ConsoleHelper.writeMessage("Ошибка. Сообщение не является текстом.");
+                }
+            }
+        }
+
+        public void run(){
+            ConsoleHelper.writeMessage("Соединение установлено c " + socket.getRemoteSocketAddress());
+            String userName = null;
+            try( Connection connection = new Connection(socket)) {
+                userName = serverHandshake(connection);
+                sendBroadcastMessage(new Message(MessageType.USER_ADDED, userName));
+                notifyUsers(connection, userName);
+                serverMainLoop(connection, userName);
+            } catch (IOException | ClassNotFoundException e) {
+                ConsoleHelper.writeMessage("Ошибка при обемене данных с " + socket.getRemoteSocketAddress());
+            }
+            if (userName != null){
+                connectionMap.remove(userName);
+                sendBroadcastMessage(new Message(MessageType.USER_REMOVED, userName));
+            }
+            ConsoleHelper.writeMessage("Соединение с " + socket.getRemoteSocketAddress() + " закрыто.");
+        }
     }
 
     public static void sendBroadcastMessage(Message message){
